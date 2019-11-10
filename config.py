@@ -1,0 +1,3 @@
+CSRF_ENABLED = True
+SECRET_KEY = 'x1x2x3x4x5x6'
+

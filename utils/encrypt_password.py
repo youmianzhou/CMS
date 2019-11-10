@@ -45,28 +45,28 @@ if __name__ == '__main__':
     # s.score = 9999
     # print(s.score)
 
-    ep = Encrypt_Password()
-    # ep.password= '123456'
-    # print(ep.password)
+    # ep = Encrypt_Password()
+    # # ep.password= '123456'
+    # # print(ep.password)
+    # #
+    # # result = ep.check_password('123456')
+    # # print(result)
+    # mysql = MyPymysqlPool("localdb")
     #
-    # result = ep.check_password('123456')
-    # print(result)
-    mysql = MyPymysqlPool("localdb")
+    # sql01 = """SELECT uid,`password` FROM `jiaqicms`.`jq_user`  WHERE `username` = 'admin'"""
+    # sql01_data = mysql.getAll(sql01)
+    #
+    # for data in sql01_data:
+    #     uid = data['uid']
+    #     pw = str(data['password'], encoding='utf-8')
+    #     ep.password = pw
+    #     # print(type(ep.password))
+    #
+    #     sql02 = """UPDATE `jiaqicms`.`jq_user` SET `password` = '{}' WHERE uid = {} """.format(str(ep.password), uid)
+    #     print(sql02)
+    #     mysql.update(sql02)
+    #
+    # mysql.dispose()
 
-    sql01 = """SELECT uid,`password` FROM `jiaqicms`.`jq_user`  WHERE `username` = 'admin'"""
-    sql01_data = mysql.getAll(sql01)
-
-    for data in sql01_data:
-        uid = data['uid']
-        pw = str(data['password'], encoding='utf-8')
-        ep.password = pw
-        # print(type(ep.password))
-
-        sql02 = """UPDATE `jiaqicms`.`jq_user` SET `password` = '{}' WHERE uid = {} """.format(str(ep.password), uid)
-        print(sql02)
-        mysql.update(sql02)
-
-    mysql.dispose()
-
-
+    Encrypt_Password.check_password('123456')
 
