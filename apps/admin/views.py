@@ -1,12 +1,13 @@
 # encoding:utf-8
+import base64
 from flask import Blueprint, render_template, request, session, redirect, url_for
-from db.mysqlConnection import *
 from werkzeug.security import generate_password_hash, check_password_hash
 from .forms import LoginForm
 from flask import make_response
 from utils.captcha import create_validate_code
 from io import BytesIO
 from datetime import timedelta
+from .models import Users
 
 
 bp = Blueprint('admin', __name__, url_prefix= '/admin')
@@ -22,40 +23,40 @@ def login():
         form = LoginForm(request.form)
         if form.validate():
             online = request.form.get('online')
-            captcha = request.form.get('captcha')
-            if session.get('image').lower() != captcha.lower():
-                return render_template('admin/login.html', message= '验证码不正确！')
+
+            if online:
+                session.permanent = True
+                bp.permanent_session_lifetime = timedelta(days=14)
+                captcha = request.form.get('captcha')
+
+                if session.get('image').lower() != captcha.lower():
+                    return render_template('admin/login.html', message= '验证码不正确！')
 
 
-            user = request.form.get('username')
-            # 原始密码
-            pwd = request.form.get('password')
+                user = request.form.get('username')
+                # 原始密码
+                pwd = request.form.get('password')
 
-            mysql = MyPymysqlPool("localdb")
-            sql01 = """SELECT * FROM `jiaqicms`.`jq_user`  WHERE `username` = '{}' LIMIT 1""".format(user)
+                users = Users.query.filter_by(username=user).first
+                if users:
 
-            sql01_data = mysql.getAll(sql01)
+                    if user == users.username and users.check_password(pwd):
+                        session['user_id'] = users.uid
+                        print('密码对！')
+                        if online:  # 如果选择了记住我
+                            session.permanent = True
+                            bp.permanent_session_lifetime = timedelta(days=10)
+                        return redirect(url_for('admin.index'))
 
-            if sql01_data:
-                uid = sql01_data[0]['uid']
-                username = str(sql01_data[0]['username'],encoding='utf-8')
-                # 加密过后的密码
-                password = str(sql01_data[0]['password'],encoding='utf-8')
-
-                if username == user and check_password_hash(pwd, password):
-                    session['user_id'] = uid
-                    print('密码对！')
-                    if online:  # 如果选择了记住我
-                        session.permanent = True
-                        bp.permanent_session_lifetime = timedelta(days=10)
-                    return redirect(url_for('admin.index'))
+                    else:
+                        error = '用户名或密码错误'
+                        return render_template('admin/login.html', message = error)
 
                 else:
-                    error = '用户名或密码错误'
-                    return render_template('admin/login.html', message = error)
+                    return render_template('admin/login.html', message = '别试了，没有此用户！')
 
-            else:
-                return render_template('admin/login.html', message = '别试了，没有此用户！')
+        else:
+            return render_template('admin/login.html', message=form.errors)
 
 
 @bp.route('/')
@@ -69,11 +70,9 @@ def get_code():
     buf = BytesIO()
     code_img.save(buf, 'JPEG', quality = 70)
     buf_str = buf.getvalue()
-
     response = make_response(buf_str)
     response.headers['Content-Type'] = 'image/jpeg'
     session['image'] = strs
+
     return response
-
-
 
