@@ -1,2 +1,2 @@
 from .views import bp
-# import apps.admin.hooks
+import apps.admin.hooks

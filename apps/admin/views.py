@@ -2,14 +2,18 @@
 import base64
 from flask import Blueprint, render_template, request, session, redirect, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
-from .forms import LoginForm
+from apps.admin.forms import LoginForm
 from flask import make_response
-from utils.captcha import create_validate_code
 from io import BytesIO
 from datetime import timedelta
 from .models import Users
 from .decorators import login_required
 import config
+from utils.captcha import create_validate_code
+from exts import db
+from flask import jsonify
+
+
 
 # 创建一个蓝图对象，蓝图已经注册得到app上了，所以蓝图对象相当于app
 bp = Blueprint('admin', __name__, url_prefix='/admin')
@@ -22,9 +26,10 @@ def login():
         return render_template('admin/login.html')
 
     else:
+        # print(session)
         form = LoginForm(request.form)
-        print(request.form)
-        print(session)
+        # print(request.form)
+
 
         if form.validate():
             user = request.form.get('username')
@@ -92,8 +97,63 @@ def get_code():
 #     return 'test index'
 
 
-# @bp.route('/logout/')
+@bp.route('/logout/')
+@login_required
+def logout():
+    del session['user_id']
+    return redirect(url_for('admin.login'))
+
+
+# 个人信息页视图
+@bp.route('/profile/')
 # @login_required
-# def logout():
-#     del session['user_id']
-#     return redirect(url_for('admin.login'))
+def profile():
+    # 根据session取得用户信息
+    if config.ADMIN_USER_ID in session:
+        user_id = session.get(config.ADMIN_USER_ID)
+        # 2
+        print(user_id)
+        user = Users.query.get(user_id)  # 这是一个user对象
+        # <Users 2>
+        print(user)
+
+        return render_template('admin/profile.html', user=user)
+
+
+def checkpwd():
+    oldpwd = request.args.get('oldpwd', '')
+    if config.ADMIN_USER_ID in session:
+        user_id = session.get(config.ADMIN_USER_ID)
+        user = Users.query.filter_by(uid=user_id).first()
+
+        if user.check_password(oldpwd):
+            data = {
+                'name': user.email,
+                'status': 11
+            }
+
+        else:
+            data = {
+                'name': None,
+                'status': 00
+            }
+
+        return jsonify(data)
+
+
+#管理员修改密码
+@bp.route('/editpwd/',methods=['GET', 'POST'])
+@login_required
+def editpwd():
+    if request.method == 'GET':
+        return render_template('admin/edit_pwd.html')
+    else:
+        oldpwd = request.form.get('oldpwd')
+        newpwd1 = request.form.get('newpwd1')
+        newpwd2 = request.form.get('newpwd2')
+        print(oldpwd)
+        user_id = session.get(config.ADMIN_USER_ID)
+        user = Users.query.filter_by(uid=user_id).first()
+        user.password = newpwd1
+        db.session.commit()
+        return render_template('admin/edit_pwd.html',message="密码修改成功！")

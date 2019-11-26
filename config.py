@@ -23,7 +23,7 @@ CSRF_ENABLED = True
 REDIS_HOST = '127.0.0.1'
 REDIS_PORT = 6379
 
-# 配置session参数
+# 配置session参数,用redis来保存session
 SESSION_TYPE = 'redis'
 SESSION_REDIS = redis.StrictRedis(host=REDIS_HOST,
                                   port=REDIS_PORT)
