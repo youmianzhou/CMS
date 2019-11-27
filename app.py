@@ -31,6 +31,7 @@ def create_app():
     app.register_blueprint(common_bp)
     app.config.from_object('config')
     CSRFProtect(app)
+    # redis保存session 开启后就是用redis保存session数据
     # Session(app)
     db.init_app(app)
     return app
