@@ -29,7 +29,7 @@ SESSION_REDIS = redis.StrictRedis(host=REDIS_HOST,
                                   port=REDIS_PORT)
 
 # session秘钥
-SECRET_KEY = 'x1x2x3x4x5x6'
+SECRET_KEY = 'x1x2x3x4x5x6x7x8x9x0'
 # 是否使用secret_key签名session_data
 SESSION_USE_SIGNER = True
 # 设置session的过期时间
