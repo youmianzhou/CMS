@@ -11,7 +11,6 @@ class Users(db.Model):
     password = db.Column(db.String(100), nullable=False)
     _password = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(50), nullable=False, unique=True)
-    reg_time = db.Column(db.DateTime, nullable=False)
 
     def __init__(self, username, password, email):
         self.username = username

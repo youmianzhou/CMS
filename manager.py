@@ -16,6 +16,8 @@ manager.add_command('db', MigrateCommand)
 @manager.option('-u', '--username', dest='username')
 @manager.option('-p', '--password', dest='password')
 @manager.option('-e', '--email', dest='email')
+
+
 def create_user(username, password, email):
     user = admin_models.Users(
         username=username,

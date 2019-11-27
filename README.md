@@ -23,3 +23,5 @@ from flask import session  这个sesssion是flask框架内置的请求上下文�
 5.
 URL反转：根据视图函数名称得到当前所指向的url
 url_for() 函数最简单的用法是以视图函数名作为参数，返回对应的url，还可以用作加载静态文件，如
+
+6.数据库迁移不成功,一般先把alembic_version表和迁移文件夹删除后重新迁移
